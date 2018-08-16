@@ -26,7 +26,17 @@
 from collections import namedtuple
 from itertools import repeat
 
+import logging
+import sys
+
 import MySQLdb
+
+
+def _merge_dicts(*args):
+    r = {}
+    for d in args:
+        r.update(d)
+    return r
 
 
 class Dialect():
@@ -44,8 +54,12 @@ class SimpleMysql:
     cur = None
     conf = None
 
-    def __init__(self, dialect=None, **kwargs):
+    def __init__(self, dialect=None, logger=None, **kwargs):
         self.dialect = dialect or DialectMySQL()
+        if not logger:
+            logger = logging.getLogger()
+            logger.addHandler(logging.StreamHandler(sys.stderr))
+        self.logger = logger
         self.conf = kwargs
         self.conf["keep_alive"] = kwargs.get("keep_alive", False)
         self.conf["charset"] = kwargs.get("charset", "utf8")
@@ -73,7 +87,7 @@ class SimpleMysql:
             self.cur = self.conn.cursor()
             self.conn.autocommit(self.conf["autocommit"])
         except:
-            print("MySQL connection failed")
+            self.logger.error('MySQL connection failed: %s', _merge_dicts(self.conf, dict(passwd='***')))
             raise
 
     def getOne(self, table=None, fields='*', where=None, order=None, limit=(0, 1)):
@@ -216,7 +230,7 @@ class SimpleMysql:
                 self.connect()
                 self.cur.execute(sql, params)
             else:
-                print("Query failed")
+                self.logger.error('Query error: "%s", SQL: "%s", params: %s', e, sql, params)
                 raise
 
         return self.cur
