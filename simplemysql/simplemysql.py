@@ -67,7 +67,7 @@ def _merge_dicts(*args):
 
 class Dialect():
     def can_reconnect(self, e):
-        raise NotImplementedError()
+        return True
 
 
 class DialectMySQL(Dialect):
