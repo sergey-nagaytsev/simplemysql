@@ -9,7 +9,7 @@ class AllDialects(unittest.TestCase):
         cls.simplemysql.end()
 
     def tearDown(self):
-        self.simplemysql.cur.execute('DROP TABLE IF EXISTS `test`;')
+        self.simplemysql.cur.execute('DROP TABLE IF EXISTS %s;' % self.simplemysql.dialect.quote_names('test') )
 
     def testGetOne(self):
         row = self.simplemysql.getOne('test', where=("id=%s", [2]))

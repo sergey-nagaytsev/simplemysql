@@ -67,14 +67,24 @@ def _merge_dicts(*args):
 
 class Dialect():
     ordered_parameter = '%s'
+    name_quote = '`'
     def can_reconnect(self, e):
         return True
+
+    def quote_names(self, *args):
+        q = self.name_quote
+        r = [q + s + q for s in args]
+        return r if len(r) > 1 else r[0]
 
 
 class DialectMySQL(Dialect):
 
     def can_reconnect(self, e):
         return (e.__class__.__name__ in ['OperationalError']) and (2006 == e[0])
+
+
+class DialectPostgres(Dialect):
+    name_quote = '"'
 
 
 class DialectSQLite3(Dialect):
@@ -302,7 +312,7 @@ class SimpleMysql:
     def _select(self, table=None, fields=(), where=None, order=None, limit=None):
         """Run a select query"""
 
-        sql = "SELECT %s FROM `%s`" % (",".join(fields), table)
+        sql = "SELECT %s FROM %s" % (",".join(fields), self.dialect.quote_names(table))
 
         # where conditions
         if where and len(where) > 0:
