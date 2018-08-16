@@ -49,21 +49,20 @@ class SimpleMysql:
         try:
             if not self.conf["ssl"]:
                 self.conn = MySQLdb.connect(db=self.conf['db'], host=self.conf['host'],
-                                        port=self.conf['port'], user=self.conf['user'],
-                                        passwd=self.conf['passwd'],
-                                        charset=self.conf['charset'])
+                                            port=self.conf['port'], user=self.conf['user'],
+                                            passwd=self.conf['passwd'],
+                                            charset=self.conf['charset'])
             else:
                 self.conn = MySQLdb.connect(db=self.conf['db'], host=self.conf['host'],
-                                        port=self.conf['port'], user=self.conf['user'],
-                                        passwd=self.conf['passwd'],
-                                        ssl=self.conf['ssl'],
-                                        charset=self.conf['charset'])
+                                            port=self.conf['port'], user=self.conf['user'],
+                                            passwd=self.conf['passwd'],
+                                            ssl=self.conf['ssl'],
+                                            charset=self.conf['charset'])
             self.cur = self.conn.cursor()
             self.conn.autocommit(self.conf["autocommit"])
         except:
-            print ("MySQL connection failed")
+            print("MySQL connection failed")
             raise
-
 
     def getOne(self, table=None, fields='*', where=None, order=None, limit=(0, 1)):
         """Get a single result
@@ -85,7 +84,6 @@ class SimpleMysql:
             row = Row(*result)
 
         return row
-
 
     def getAll(self, table=None, fields='*', where=None, order=None, limit=None):
         """Get all results
@@ -141,7 +139,6 @@ class SimpleMysql:
 
         return rows
 
-
     def insert(self, table, data):
         """Insert a record"""
 
@@ -156,10 +153,10 @@ class SimpleMysql:
 
         query = self._serialize_batch_insert(data)
         sql = "INSERT INTO %s (%s) VALUES %s" % (table, query[0], query[1])
-        flattened_values = [v for sublist in data for k,v in sublist.iteritems()]
-        return self.query(sql,flattened_values).rowcount
+        flattened_values = [v for sublist in data for k, v in sublist.iteritems()]
+        return self.query(sql, flattened_values).rowcount
 
-    def update(self, table, data, where = None):
+    def update(self, table, data, where=None):
         """Insert a record"""
 
         query = self._serialize_update(data)
@@ -170,8 +167,7 @@ class SimpleMysql:
             sql += " WHERE %s" % where[0]
 
         return self.query(sql, data.values() + where[1] if where and len(where) > 1 else data.values()
-                        ).rowcount
-
+                          ).rowcount
 
     def insertOrUpdate(self, table, data, keys):
         insert_data = data.copy()
@@ -184,9 +180,9 @@ class SimpleMysql:
 
         sql = "INSERT INTO %s (%s) VALUES(%s) ON DUPLICATE KEY UPDATE %s" % (table, insert[0], insert[1], update)
 
-        return self.query(sql, insert_data.values() + data.values() ).rowcount
+        return self.query(sql, insert_data.values() + data.values()).rowcount
 
-    def delete(self, table, where = None):
+    def delete(self, table, where=None):
         """Delete rows based on a where condition"""
 
         sql = "DELETE FROM %s" % table
@@ -196,8 +192,7 @@ class SimpleMysql:
 
         return self.query(sql, where[1] if where and len(where) > 1 else None).rowcount
 
-
-    def query(self, sql, params = None):
+    def query(self, sql, params=None):
         """Run a raw query"""
 
         # check if connection is alive. if not, reconnect
@@ -233,22 +228,21 @@ class SimpleMysql:
 
     def _serialize_insert(self, data):
         """Format insert dict values into strings"""
-        keys = ",".join( data.keys() )
+        keys = ",".join(data.keys())
         vals = ",".join(["%s" for k in data])
 
         return [keys, vals]
 
     def _serialize_batch_insert(self, data):
         """Format insert dict values into strings"""
-        keys = ",".join( data[0].keys() )
+        keys = ",".join(data[0].keys())
         v = "(%s)" % ",".join(tuple("%s".rstrip(',') for v in range(len(data[0]))))
-        l = ','.join(list(repeat(v,len(data))))
+        l = ','.join(list(repeat(v, len(data))))
         return [keys, l]
 
     def _serialize_update(self, data):
         """Format update dict values into string"""
-        return "=%s,".join( data.keys() ) + "=%s"
-
+        return "=%s,".join(data.keys()) + "=%s"
 
     def _select(self, table=None, fields=(), where=None, order=None, limit=None):
         """Run a select query"""
@@ -264,14 +258,14 @@ class SimpleMysql:
             sql += " ORDER BY %s" % order[0]
 
             if len(order) > 1:
-                sql+= " %s" % order[1]
+                sql += " %s" % order[1]
 
         # limit
         if limit:
             sql += " LIMIT %s" % limit[0]
 
             if len(limit) > 1:
-                sql+= ", %s" % limit[1]
+                sql += ", %s" % limit[1]
 
         return self.query(sql, where[1] if where and len(where) > 1 else None)
 
@@ -282,12 +276,12 @@ class SimpleMysql:
                  [tables[1] + "." + f for f in fields[1]]
 
         sql = "SELECT %s FROM %s LEFT JOIN %s ON (%s = %s)" % \
-                (   ",".join(fields),
-                    tables[0],
-                    tables[1],
-                    tables[0] + "." + join_fields[0], \
-                    tables[1] + "." + join_fields[1]
-                )
+              (",".join(fields),
+               tables[0],
+               tables[1],
+               tables[0] + "." + join_fields[0], \
+               tables[1] + "." + join_fields[1]
+               )
 
         # where conditions
         if where and len(where) > 0:
@@ -298,14 +292,14 @@ class SimpleMysql:
             sql += " ORDER BY %s" % order[0]
 
             if len(order) > 1:
-                sql+= " " + order[1]
+                sql += " " + order[1]
 
         # limit
         if limit:
             sql += " LIMIT %s" % limit[0]
 
             if len(limit) > 1:
-                sql+= ", %s" % limit[1]
+                sql += ", %s" % limit[1]
 
         return self.query(sql, where[1] if where and len(where) > 1 else None)
 
