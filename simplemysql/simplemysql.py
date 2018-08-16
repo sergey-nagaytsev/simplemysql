@@ -232,12 +232,17 @@ class SimpleMysql:
 
         # check if connection is alive. if not, reconnect
         try:
+            self.logger.debug('SQL: "%s", params: %s', sql, params)
             self.cur.execute(sql, params)
         except Exception, e:
             # mysql timed out. reconnect and retry once
             if self.dialect.can_reconnect(e):
                 self.connect()
-                self.cur.execute(sql, params)
+                try:
+                    self.cur.execute(sql, params)
+                except Exception, e:
+                    self.logger.error('Query error: "%s", SQL: "%s", params: %s', e, sql, params)
+                    raise
             else:
                 self.logger.error('Query error: "%s", SQL: "%s", params: %s', e, sql, params)
                 raise
