@@ -23,9 +23,10 @@
     May 2013
 """
 
-import MySQLdb
 from collections import namedtuple
 from itertools import repeat
+
+import MySQLdb
 
 
 class Dialect():
