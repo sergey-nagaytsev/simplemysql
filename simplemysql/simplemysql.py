@@ -71,8 +71,13 @@ class Dialect():
 
 
 class DialectMySQL(Dialect):
+    ordered_parameter = '%s'
     def can_reconnect(self, e):
         return (e.__class__.__name__ in ['OperationalError']) and (2006 == e[0])
+
+
+class DialectSQLite3(Dialect):
+    ordered_parameter = '?'
 
 
 class SimpleMysql:
@@ -229,6 +234,8 @@ class SimpleMysql:
 
     def query(self, sql, params=None):
         """Run a raw query"""
+
+        sql = sql.replace('%s', self.dialect.ordered_parameter)
 
         # check if connection is alive. if not, reconnect
         try:
