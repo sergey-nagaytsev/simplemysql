@@ -24,5 +24,5 @@ setup(
         "Topic :: Database",
         "Topic :: Software Development :: Libraries"
     ],
-    install_requires=["mysql-python"]
+    install_requires=["mysqlclient"]
 )
