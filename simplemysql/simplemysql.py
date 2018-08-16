@@ -28,12 +28,23 @@ from collections import namedtuple
 from itertools import repeat
 
 
+class Dialect():
+    def can_reconnect(self, e):
+        raise NotImplementedError()
+
+
+class DialectMySQL(Dialect):
+    def can_reconnect(self, e):
+        return (e.__class__.__name__ in ['OperationalError']) and (2006 == e[0])
+
+
 class SimpleMysql:
     conn = None
     cur = None
     conf = None
 
-    def __init__(self, **kwargs):
+    def __init__(self, dialect=None, **kwargs):
+        self.dialect = dialect or DialectMySQL()
         self.conf = kwargs
         self.conf["keep_alive"] = kwargs.get("keep_alive", False)
         self.conf["charset"] = kwargs.get("charset", "utf8")
@@ -198,16 +209,14 @@ class SimpleMysql:
         # check if connection is alive. if not, reconnect
         try:
             self.cur.execute(sql, params)
-        except MySQLdb.OperationalError, e:
+        except Exception, e:
             # mysql timed out. reconnect and retry once
-            if e[0] == 2006:
+            if self.dialect.can_reconnect(e):
                 self.connect()
                 self.cur.execute(sql, params)
             else:
+                print("Query failed")
                 raise
-        except:
-            print("Query failed")
-            raise
 
         return self.cur
 
