@@ -1,6 +1,8 @@
 import unittest
 
-import simplemysql
+import MySQLdb
+
+from simplemysql import SimpleMysql, connect, defer, func_args
 
 _CONNECT = dict(
     host='127.0.0.1',
@@ -16,7 +18,7 @@ class MysqlTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.simplemysql = simplemysql.SimpleMysql(**_CONNECT)
+        cls.simplemysql = SimpleMysql(connect(defer(MySQLdb.connect,**_CONNECT),dict(autocommit=func_args(True))))
 
     @classmethod
     def tearDownClass(cls):

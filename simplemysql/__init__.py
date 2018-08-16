@@ -1,1 +1,1 @@
-from .simplemysql import SimpleMysql
+from .simplemysql import *

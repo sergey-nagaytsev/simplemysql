@@ -32,6 +32,34 @@ import sys
 import MySQLdb
 
 
+def connect(deferred_connect, extra_calls=None):
+    extra_calls = extra_calls or {}
+
+    def _connect_inner():
+        conn = deferred_connect()
+        for method, args in extra_calls.items():
+            if _has_method(conn, method):
+                getattr(conn, method)(*args[0], **args[1])
+        return conn
+
+    return _connect_inner
+
+
+def defer(fn, *args, **kwargs):
+    def _deferred_inner():
+        return fn(*args, **kwargs)
+
+    return _deferred_inner
+
+
+def func_args(*args, **kwargs):
+    return args, kwargs
+
+
+def _has_method(obj, name):
+    return hasattr(obj, name) and callable(getattr(obj, name))
+
+
 def _merge_dicts(*args):
     r = {}
     for d in args:
@@ -54,40 +82,23 @@ class SimpleMysql:
     cur = None
     conf = None
 
-    def __init__(self, dialect=None, logger=None, **kwargs):
+    def __init__(self, connection_factory, dialect=None, logger=None):
         self.dialect = dialect or DialectMySQL()
         if not logger:
             logger = logging.getLogger()
             logger.addHandler(logging.StreamHandler(sys.stderr))
         self.logger = logger
-        self.conf = kwargs
-        self.conf["keep_alive"] = kwargs.get("keep_alive", False)
-        self.conf["charset"] = kwargs.get("charset", "utf8")
-        self.conf["host"] = kwargs.get("host", "localhost")
-        self.conf["port"] = kwargs.get("port", 3306)
-        self.conf["autocommit"] = kwargs.get("autocommit", False)
-        self.conf["ssl"] = kwargs.get("ssl", False)
+        self.connection_factory = connection_factory
         self.connect()
 
     def connect(self):
         """Connect to the mysql server"""
 
         try:
-            if not self.conf["ssl"]:
-                self.conn = MySQLdb.connect(db=self.conf['db'], host=self.conf['host'],
-                                            port=self.conf['port'], user=self.conf['user'],
-                                            passwd=self.conf['passwd'],
-                                            charset=self.conf['charset'])
-            else:
-                self.conn = MySQLdb.connect(db=self.conf['db'], host=self.conf['host'],
-                                            port=self.conf['port'], user=self.conf['user'],
-                                            passwd=self.conf['passwd'],
-                                            ssl=self.conf['ssl'],
-                                            charset=self.conf['charset'])
+            self.conn = self.connection_factory()
             self.cur = self.conn.cursor()
-            self.conn.autocommit(self.conf["autocommit"])
-        except:
-            self.logger.error('MySQL connection failed: %s', _merge_dicts(self.conf, dict(passwd='***')))
+        except Exception, e:
+            self.logger.error('MySQL connection failed: %s', e) #_merge_dicts(self.conf, dict(passwd='***')))
             raise
 
     def getOne(self, table=None, fields='*', where=None, order=None, limit=(0, 1)):
