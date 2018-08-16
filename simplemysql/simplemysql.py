@@ -66,12 +66,13 @@ def _merge_dicts(*args):
 
 
 class Dialect():
+    ordered_parameter = '%s'
     def can_reconnect(self, e):
         return True
 
 
 class DialectMySQL(Dialect):
-    ordered_parameter = '%s'
+
     def can_reconnect(self, e):
         return (e.__class__.__name__ in ['OperationalError']) and (2006 == e[0])
 
