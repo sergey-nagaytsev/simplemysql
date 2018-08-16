@@ -285,6 +285,15 @@ class SimpleMysql:
         l = ','.join(list(repeat(v, len(data))))
         return [keys, l]
 
+    def _serialize_limit(self, limit):
+        limit = [int(n) for n in limit]
+        r = ''
+        if 2 == len(limit):
+            r = ' LIMIT %s OFFSET %s' % (limit[1], limit[0])
+        elif 1 == len(limit):
+            r = ' LIMIT %s' % limit[0]
+        return r
+
     def _serialize_update(self, data):
         """Format update dict values into string"""
         return "=%s,".join(data.keys()) + "=%s"
@@ -307,10 +316,7 @@ class SimpleMysql:
 
         # limit
         if limit:
-            sql += " LIMIT %s" % limit[0]
-
-            if len(limit) > 1:
-                sql += ", %s" % limit[1]
+            sql += self._serialize_limit(limit)
 
         return self.query(sql, where[1] if where and len(where) > 1 else None)
 
@@ -341,10 +347,7 @@ class SimpleMysql:
 
         # limit
         if limit:
-            sql += " LIMIT %s" % limit[0]
-
-            if len(limit) > 1:
-                sql += ", %s" % limit[1]
+            sql += self._serialize_limit(limit)
 
         return self.query(sql, where[1] if where and len(where) > 1 else None)
 
