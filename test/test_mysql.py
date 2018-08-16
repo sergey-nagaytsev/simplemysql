@@ -2,6 +2,8 @@ import unittest
 
 import MySQLdb
 
+import all_dialects
+
 from simplemysql import SimpleMysql, connect, defer, func_args
 
 _CONNECT = dict(
@@ -13,16 +15,11 @@ _CONNECT = dict(
 )
 
 
-class MysqlTest(unittest.TestCase):
-    simplemysql = None
+class MysqlTest(all_dialects.AllDialects):
 
     @classmethod
     def setUpClass(cls):
         cls.simplemysql = SimpleMysql(connect(defer(MySQLdb.connect,**_CONNECT),dict(autocommit=func_args(True))))
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.simplemysql.end()
 
     def setUp(self):
         self.simplemysql.cur.execute('''
@@ -39,17 +36,6 @@ class MysqlTest(unittest.TestCase):
               ('3', 'Do not look at me')
             ;
         ''')
-
-    def tearDown(self):
-        self.simplemysql.cur.execute('DROP TABLE `test`;')
-
-    def testGetOne(self):
-        row = self.simplemysql.getOne('test', where=("id=%s", [2]))
-        self.assertEqual(row.name, 'Value 2')
-
-    def testGetAll(self):
-        rowset = self.simplemysql.getAll('test', where=("name LIKE %s", ['%Value%']))  # , order=('name', 'ASC'))
-        self.assertEqual(len(rowset), 2)
 
 
 if __name__ == '__main__':
