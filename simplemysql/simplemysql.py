@@ -29,8 +29,6 @@ from itertools import repeat
 import logging
 import sys
 
-import MySQLdb
-
 
 def connect(deferred_connect, extra_calls=None):
     extra_calls = extra_calls or {}
