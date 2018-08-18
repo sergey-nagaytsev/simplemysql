@@ -1,6 +1,6 @@
 import psycopg2
 
-import all_dialects
+from . import all_dialects
 from simplemysql import DialectPostgres, SimpleMysql, defer
 
 _CONNECT = dict(

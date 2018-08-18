@@ -1,6 +1,6 @@
 import sqlite3
 
-import all_dialects
+from . import all_dialects
 from simplemysql import DialectSQLite3, SimpleMysql, defer
 
 

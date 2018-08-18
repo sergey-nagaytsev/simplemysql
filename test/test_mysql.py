@@ -2,7 +2,7 @@ import unittest
 
 import MySQLdb
 
-import all_dialects
+from . import all_dialects
 
 from simplemysql import SimpleMysql, connect, defer, func_args
 
