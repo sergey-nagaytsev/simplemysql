@@ -1,7 +1,9 @@
 #SimpleMysql
 An ultra simple wrapper for Python MySQLdb with very basic functionality
 
-- Kailash Nadh, June 2013
+[![Build Status](https://travis-ci.com/sergey-nagaytsev/simplemysql.svg?branch=master)](https://travis-ci.com/sergey-nagaytsev/simplemysql)
+
+- Kailash Nadh, June 2013. Sergey Nagaytsev, Aug 2018
 - Documentation: [http://nadh.in/code/simplemysql](http://nadh.in/code/simplemysql)
 - License: GPL v2
 
