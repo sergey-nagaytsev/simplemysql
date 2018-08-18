@@ -12,7 +12,7 @@ _CONNECT = dict(
 )
 
 
-class SQLite3Test(all_dialects.AllDialects):
+class PostgresTest(all_dialects.AllDialects):
 
     @classmethod
     def setUpClass(cls):
