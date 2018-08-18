@@ -17,31 +17,18 @@ Or from the source
 ```python setup.py install```
 
 # Usage
-## For normal connection
+## Connection, minimal
 ```python
-from simplemysql import SimpleMysql
+import MySQLdb
 
-db = SimpleMysql(
+from simplemysql import SimpleMysql, defer
+
+db = SimpleMysql(defer(MySQLdb.connect,dict(
 	host="127.0.0.1",
 	db="mydatabase",
 	user="username",
 	passwd="password",
-	keep_alive=True # try and reconnect timedout mysql connections?
-)
-```
-## For SSL Connection
-```python
-from simplemysql import SimpleMysql
-
-db = SimpleMysql(
-    host="127.0.0.1",
-    db="mydatabase",
-    user="username",
-    passwd="password",
-    ssl = {'cert': 'client-cert.pem', 'key': 'client-key.pem'},
-    keep_alive=True # try and reconnect timedout mysql connections?
-)
-
+)))
 ```
 
 
