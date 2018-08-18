@@ -14,4 +14,4 @@ install:
   - pip install tox
 # command to run tests
 script:
-  - tox
+  - python -m unittest test.test_all
