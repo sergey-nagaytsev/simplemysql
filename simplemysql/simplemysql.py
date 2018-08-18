@@ -111,7 +111,7 @@ class SimpleMysql:
         try:
             self.conn = self.connection_factory()
             self.cur = self.conn.cursor()
-        except Exception, e:
+        except Exception as e:
             self.logger.error('MySQL connection failed: %s', e) #_merge_dicts(self.conf, dict(passwd='***')))
             raise
 
@@ -252,13 +252,13 @@ class SimpleMysql:
         try:
             self.logger.debug('SQL: "%s", params: %s', sql, params)
             self.cur.execute(sql, params)
-        except Exception, e:
+        except Exception as e:
             # mysql timed out. reconnect and retry once
             if self.dialect.can_reconnect(e):
                 self.connect()
                 try:
                     self.cur.execute(sql, params)
-                except Exception, e:
+                except Exception as e:
                     self.logger.error('Query error: "%s", SQL: "%s", params: %s', e, sql, params)
                     raise
             else:
