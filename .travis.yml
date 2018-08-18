@@ -11,7 +11,7 @@ before_script:
   - psql -c 'create database test;' -U postgres
 # command to install dependencies
 install:
-  - pip install tox
+  - pip install mysqlclient psycopg2-binary
 # command to run tests
 script:
   - python -m unittest test.test_all
