@@ -17,18 +17,40 @@ Or from the source
 ```python setup.py install```
 
 # Usage
-## Connection, minimal
+## Connection
 ```python
 import MySQLdb
 
-from simplemysql import SimpleMysql, defer
+from simplemysql import SimpleMysql
 
-db = SimpleMysql(defer(MySQLdb.connect,dict(
-	host="127.0.0.1",
-	db="mydatabase",
-	user="username",
-	passwd="password",
-)))
+def _connection_factory():
+    conn = MySQLdb.connect(
+        host='127.0.0.1',
+        port=3306,
+        user='root',
+        passwd='',
+        db='test',
+    )
+    conn.autocommit(True)
+    return conn
+
+db = SimpleMysql(_connection_factory)
+```
+
+```python
+import psycopg2
+
+from simplemysql import DialectPostgres, SimpleMysql
+
+_CONNECT = dict(
+    host='127.0.0.1',
+    port=5432,
+    user='travis',
+    password='',
+    dbname='test',
+)
+
+db = SimpleMysql(lambda: psycopg2.connect(**_CONNECT), DialectPostgres())
 ```
 
 

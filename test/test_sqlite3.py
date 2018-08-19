@@ -1,14 +1,14 @@
 import sqlite3
 
 from . import all_dialects
-from simplemysql import DialectSQLite3, SimpleMysql, defer
+from simplemysql import DialectSQLite3, SimpleMysql
 
 
 class SQLite3Test(all_dialects.AllDialects):
 
     @classmethod
     def setUpClass(cls):
-        cls.simplemysql = SimpleMysql(defer(sqlite3.connect, ':memory:'), DialectSQLite3())
+        cls.simplemysql = SimpleMysql(lambda : sqlite3.connect(':memory:'), DialectSQLite3())
 
     def setUp(self):
         self.simplemysql.cur.execute('''

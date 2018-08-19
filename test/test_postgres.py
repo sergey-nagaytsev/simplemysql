@@ -1,7 +1,7 @@
 import psycopg2
 
 from . import all_dialects
-from simplemysql import DialectPostgres, SimpleMysql, defer
+from simplemysql import DialectPostgres, SimpleMysql
 
 _CONNECT = dict(
     host='127.0.0.1',
@@ -16,7 +16,7 @@ class PostgresTest(all_dialects.AllDialects):
 
     @classmethod
     def setUpClass(cls):
-        cls.simplemysql = SimpleMysql(defer(psycopg2.connect, **_CONNECT), DialectPostgres())
+        cls.simplemysql = SimpleMysql(lambda: psycopg2.connect(**_CONNECT), DialectPostgres())
 
     def setUp(self):
         self.simplemysql.cur.execute('''

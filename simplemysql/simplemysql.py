@@ -30,44 +30,13 @@ import logging
 import sys
 
 
-def connect(deferred_connect, extra_calls=None):
-    extra_calls = extra_calls or {}
+class Dialect:
+    def __init__(self):
+        pass
 
-    def _connect_inner():
-        conn = deferred_connect()
-        for method, args in extra_calls.items():
-            if _has_method(conn, method):
-                getattr(conn, method)(*args[0], **args[1])
-        return conn
-
-    return _connect_inner
-
-
-def defer(fn, *args, **kwargs):
-    def _deferred_inner():
-        return fn(*args, **kwargs)
-
-    return _deferred_inner
-
-
-def func_args(*args, **kwargs):
-    return args, kwargs
-
-
-def _has_method(obj, name):
-    return hasattr(obj, name) and callable(getattr(obj, name))
-
-
-def _merge_dicts(*args):
-    r = {}
-    for d in args:
-        r.update(d)
-    return r
-
-
-class Dialect():
     ordered_parameter = '%s'
     name_quote = '`'
+
     def can_reconnect(self, e):
         return True
 

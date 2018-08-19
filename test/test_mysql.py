@@ -4,22 +4,26 @@ import MySQLdb
 
 from . import all_dialects
 
-from simplemysql import SimpleMysql, connect, defer, func_args
+from simplemysql import SimpleMysql
 
-_CONNECT = dict(
-    host='127.0.0.1',
-    port=3306,
-    user='root',
-    passwd='',
-    db='test',
-)
+
+def _connection_factory():
+    conn = MySQLdb.connect(
+        host='127.0.0.1',
+        port=3306,
+        user='root',
+        passwd='',
+        db='test',
+    )
+    conn.autocommit(True)
+    return conn
 
 
 class MysqlTest(all_dialects.AllDialects):
 
     @classmethod
     def setUpClass(cls):
-        cls.simplemysql = SimpleMysql(connect(defer(MySQLdb.connect,**_CONNECT),dict(autocommit=func_args(True))))
+        cls.simplemysql = SimpleMysql(_connection_factory)
 
     def setUp(self):
         self.simplemysql.cur.execute('''
