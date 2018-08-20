@@ -28,7 +28,7 @@ class MysqlTest(all_dialects.AllDialects):
     def setUp(self):
         self.simplemysql.cur.execute('''
             CREATE TABLE IF NOT EXISTS `test` (
-              `id` int(6) unsigned NOT NULL,
+              `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
               `name` varchar(200) NOT NULL,
               PRIMARY KEY (`id`)
             ) DEFAULT CHARSET=utf8;

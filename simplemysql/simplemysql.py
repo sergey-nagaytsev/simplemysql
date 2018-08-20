@@ -186,7 +186,7 @@ class SimpleMysql:
 
         query = self._serialize_batch_insert(data)
         sql = "INSERT INTO %s (%s) VALUES %s" % (table, query[0], query[1])
-        flattened_values = [v for sublist in data for k, v in sublist.iteritems()]
+        flattened_values = [v for sublist in data for k, v in sublist.items()]
         return self.query(sql, flattened_values).rowcount
 
     def update(self, table, data, where=None):
@@ -199,21 +199,28 @@ class SimpleMysql:
         if where and len(where) > 0:
             sql += " WHERE %s" % where[0]
 
-        return self.query(sql, data.values() + where[1] if where and len(where) > 1 else data.values()
-                          ).rowcount
+        data_values = list(data.values())
+        return self.query(
+            sql,
+            data_values + where[1] if where and len(where) > 1 else data_values
+        ).rowcount
 
-    def insertOrUpdate(self, table, data, keys):
+    def insertOrUpdate(self, table, data, key_columns_names):
         insert_data = data.copy()
 
-        data = {k: data[k] for k in data if k not in keys}
+        update_data = {k: data[k] for k in data if k not in key_columns_names}
 
-        insert = self._serialize_insert(insert_data)
+        update_where = [(k, data[k]) for k in key_columns_names]
+        update_where = (
+            ' AND '.join([w[0] + '=%s' for w in update_where]),
+            [w[1] for w in update_where]
+        )
 
-        update = self._serialize_update(data)
-
-        sql = "INSERT INTO %s (%s) VALUES(%s) ON DUPLICATE KEY UPDATE %s" % (table, insert[0], insert[1], update)
-
-        return self.query(sql, insert_data.values() + data.values()).rowcount
+        row = self.getOne(table,where=update_where)
+        if row:
+            self.update(table, update_data, update_where)
+        else:
+            self.insert(table, insert_data)
 
     def delete(self, table, where=None):
         """Delete rows based on a where condition"""
@@ -229,6 +236,7 @@ class SimpleMysql:
         """Run a raw query"""
 
         sql = sql.replace('%s', self.dialect.ordered_parameter)
+        params = list(params or [])
 
         # check if connection is alive. if not, reconnect
         try:

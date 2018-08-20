@@ -13,9 +13,8 @@ class SQLite3Test(all_dialects.AllDialects):
     def setUp(self):
         self.simplemysql.cur.execute('''
             CREATE TABLE IF NOT EXISTS `test` (
-              `id` int(6) NOT NULL,
-              `name` varchar(200) NOT NULL,
-              PRIMARY KEY (`id`)
+              `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+              `name` varchar(200) NOT NULL
             );
         ''')
         self.simplemysql.cur.execute('''
