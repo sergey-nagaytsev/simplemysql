@@ -30,6 +30,18 @@ import logging
 import sys
 
 
+def _named_tuple_factory():
+    cache = {}
+
+    def _named_tuple_factory_inner(columns_names):
+        key = tuple(columns_names)
+        if not key in cache:
+            cache[key] = namedtuple('Row', columns_names)
+        return cache[key]
+
+    return _named_tuple_factory_inner
+
+
 class Dialect:
     def __init__(self):
         pass
@@ -66,6 +78,7 @@ class SimpleMysql:
     conf = None
 
     def __init__(self, connection_factory, dialect=None, logger=None):
+        self.named_tuple_factory = _named_tuple_factory()
         self.dialect = dialect or DialectMySQL()
         if not logger:
             logger = logging.getLogger()
@@ -100,7 +113,7 @@ class SimpleMysql:
 
         row = None
         if result:
-            Row = namedtuple("Row", [f[0] for f in cur.description])
+            Row = self.named_tuple_factory([f[0] for f in cur.description])
             row = Row(*result)
 
         return row
@@ -121,7 +134,7 @@ class SimpleMysql:
 
         rows = None
         if result:
-            Row = namedtuple("Row", [f[0] for f in cur.description])
+            Row = self.named_tuple_factory([f[0] for f in cur.description])
             rows = [Row(*r) for r in result]
 
         return rows
@@ -154,7 +167,7 @@ class SimpleMysql:
 
         rows = None
         if result:
-            Row = namedtuple("Row", [f[0] for f in cur.description])
+            Row = self.named_tuple_factory([f[0] for f in cur.description])
             rows = [Row(*r) for r in result]
 
         return rows
